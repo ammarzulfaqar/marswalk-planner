@@ -1,0 +1,9 @@
+{
+    "source":  "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json",
+    "lon":  77.23281069,
+    "extracted_utc":  "2026-10-14T21:39:16.4692437Z",
+    "elev_m":  -1937.829712,
+    "lat":  18.43556252,
+    "rmc":  "91_1496",
+    "sol":  2006
+}

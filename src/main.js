@@ -1,4 +1,4 @@
-import { initGlobe, sampleElevation } from "./globe.js";
+import { initGlobe, sampleElevation, flyToRover } from "./globe.js";
 import { initPlanner, setMode as plannerMode } from "./planner.js";
 
 const $ = (id) => document.getElementById(id);
@@ -20,6 +20,7 @@ function show(view) {
 
 $("btn-globe").onclick = () => show("globe");
 $("btn-planner").onclick = () => show("planner");
+$("btn-rover").onclick = () => { show("globe"); flyToRover(); };
 
 (async function boot() {
   try {

@@ -2,6 +2,8 @@
 // MGS MOLA + MEX HRSC blended DEM 200 m terrain, Viking color mosaic 232 m imagery,
 // with high-res insets for Jezero (CTX 6 m imagery / TRN DTM 20 m terrain) and Gale.
 // API ref: CesiumJS >= 1.133 ships Ellipsoid.MARS (PR #12828, Sept 2025).
+// Rover: NASA/JPL-Caltech official Perseverance GLB (vendored in /assets, Sol-2006
+// snapshot position from the M20 GIS traverse).
 import { CESIUM_TOKEN, CESIUM_MARS_ASSET_ID } from "./config.js";
 
 const POIS = [
@@ -49,6 +51,52 @@ export async function initGlobe() {
     destination: Cesium.Cartesian3.fromDegrees(77.45, 17.7, 160_000),
     orientation: { heading: Cesium.Math.toRadians(0), pitch: Cesium.Math.toRadians(-35), roll: 0 },
     duration: 4.5,
+  });
+  loadRover();   // async, non-blocking: GLB is ~11.7 MB, loads in the background
+}
+
+let roverModel = null, roverPos = null;
+
+// Place the real Perseverance GLB at its live position (end of the M20 traverse).
+async function loadRover() {
+  try {
+    roverPos = await (await fetch("assets/rover_position.json")).json();
+    const hpr = new Cesium.HeadingPitchRoll(0, 0, 0);
+    let height = roverPos.elev_m;
+    try {
+      const s = await viewer.scene.sampleHeightMostDetailed(
+        [Cesium.Cartographic.fromDegrees(roverPos.lon, roverPos.lat)]);
+      if (s?.[0] && Number.isFinite(s[0].height)) height = s[0].height;
+    } catch { /* keep traverse MOLA elevation as fallback */ }
+
+    const position = Cesium.Cartesian3.fromDegrees(roverPos.lon, roverPos.lat, height);
+    roverModel = await Cesium.Model.fromGltfAsync({
+      url: "assets/Perseverance.glb",
+      modelMatrix: Cesium.Transforms.headingPitchRollToFixedFrame(position, hpr),
+      scale: 1.0,   // real size: 2.9 m mast to wheel — get close with 🤖 Fly to rover
+    });
+    viewer.scene.primitives.add(roverModel);
+
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(roverPos.lon, roverPos.lat, 60),
+      point: { pixelSize: 9, color: Cesium.Color.fromCssColorString("#3ddc84") },
+      label: { text: `🤖 Perseverance — live position (Sol ${roverPos.sol})`,
+               font: "13px Segoe UI", fillColor: Cesium.Color.WHITE, showBackground: true,
+               backgroundColor: Cesium.Color.fromCssColorString("#14181fd9"),
+               pixelOffset: new Cesium.Cartesian2(10, -12), scale: 0.85 },
+    });
+  } catch (e) {
+    console.error("rover model load failed:", e);
+  }
+}
+
+// Dive the camera down to the rover (button in the top bar).
+export function flyToRover() {
+  if (!roverPos) return;
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(roverPos.lon - 0.0006, roverPos.lat - 0.0006, 55),
+    orientation: { heading: Cesium.Math.toRadians(30), pitch: Cesium.Math.toRadians(-22), roll: 0 },
+    duration: 3.0,
   });
 }
 

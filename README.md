@@ -10,7 +10,9 @@ Blender. Built for the [NASA Space Apps Challenge](https://spaceappschallenge.na
 
 1. **🌐 Globe** — full-planet Mars in 3D (CesiumJS + official **Cesium Mars** 3D Tiles:
    MOLA+HRSC blended terrain, Viking color mosaic, hi-res Jezero CTX inset), POI tour
-   from Olympus Mons to Valles Marineris, touchdown sites for Perseverance and Curiosity.
+   from Olympus Mons to Valles Marineris, touchdown sites for Perseverance and Curiosity,
+   and the **actual Perseverance rover** (NASA/JPL GLB) placed at its live position
+   (Sol-2006 snapshot) — hit **🤖 Fly to rover** to dive down to it.
 2. **🗺️ Jezero Planner** — 2D map (OpenPlanetaryMap basemap + NASA Mars Trek MOLA
    hillshade) with **Perseverance's actual traverse** streamed live from
    `mars.nasa.gov` GIS (GeoJSON, Sol-tagged, with real MOLA elevations per segment).
@@ -42,7 +44,15 @@ blender Untitled.blend --background --python blender\marswalk_bridge.py -- path\
 - **Cesium Mars** 3D Tiles (ion asset 3644333) — imagery © NASA/JPL/USGS Viking + CTX;
   terrain MOLA (MGS) blended with HRSC (MEX), © NASA/USGS/ESA/DLR. CesiumJS is Apache-2.0.
 - **Mars Trek** WMTS layers — NASA/JPL-Caltech.
-- **Perseverance traverse** GeoJSON — NASA/JPL-Caltech M20 GIS, public domain.
+- **Perseverance traverse** GeoJSON + **rover 3D model** — NASA/JPL-Caltech M20 GIS,
+  public domain. Both are vendored in `assets/` because `mars.nasa.gov` sends no CORS
+  headers (browser fetch would be blocked). To refresh the snapshot:
+
+```powershell
+Invoke-WebRequest 'https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json' -OutFile assets\M20_traverse.json
+Invoke-WebRequest 'https://mars.nasa.gov/system/resources/gltf_files/25042_Perseverance.glb' -OutFile assets\Perseverance.glb
+# then re-extract assets\rover_position.json (last feature's last coordinate) and commit
+```
 - **OpenPlanetaryMap** Mars basemap — OPM community.
 - **PDS Orbital Data Explorer** REST — Washington University St. Louis / NASA PDS.
 

@@ -5,7 +5,6 @@
 //   · Perseverance's real traverse as GeoJSON from mars.nasa.gov (verified 200,
 //     LineStrings carry MOLA elevations per segment)
 import { haversineM, routeStats, profileSVG } from "./analytics.js";
-import { M20_TRAVERSE_URL } from "./config.js";
 
 const JEZERO = { center: [18.42, 77.53], zoom: 12 };
 let map, ctx, verts = [], planMode = false, traverseLoaded = false, initialized = false;
@@ -97,9 +96,11 @@ async function sampleElev() {
 async function loadTraverse() {
   if (traverseLoaded) return;
   traverseLoaded = true;
-  cb.status("Loading Perseverance's real traverse from mars.nasa.gov…");
+  cb.status("Loading Perseverance's traverse (Sol-2006 snapshot)…");
   try {
-    const gj = await (await fetch(M20_TRAVERSE_URL)).json();
+    // mars.nasa.gov sends no CORS header, so we serve the vendored snapshot from /assets.
+    // Refresh it with: Invoke-WebRequest .../M20_traverse.json -OutFile assets\M20_traverse.json
+    const gj = await (await fetch("assets/M20_traverse.json")).json();
     const landing = gj.features?.[0]?.geometry?.coordinates?.[0];
     L.geoJSON(gj, {
       style: { color: "#ff7a00", weight: 3, opacity: 0.9 },
@@ -107,7 +108,10 @@ async function loadTraverse() {
     }).addTo(map);
     if (landing) L.marker([landing[1], landing[0]], { opacity: 0.9 })
       .addTo(map).bindPopup("Touchdown: Octavia E. Butler, Feb 18 2021");
-    cb.status(`Traverse loaded — ${gj.features?.length ?? 0} sol segments`);
+    const end = gj.features[gj.features.length - 1].geometry.coordinates.slice(-1)[0];
+    L.circleMarker([end[1], end[0]], { radius: 6, color: "#3ddc84", fillOpacity: 1 })
+      .addTo(map).bindPopup("🤖 Rover's current position (Sol 2006 snapshot)");
+    cb.status(`Traverse loaded — ${gj.features?.length ?? 0} sol segments (Sol-2006 snapshot)`);
   } catch (e) {
     traverseLoaded = false;
     cb.status("Traverse fetch failed (CORS?) — route planning still works", true);
