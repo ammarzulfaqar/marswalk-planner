@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TRAVERSE — Marswalk Mission Planner</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Widgets/widgets.css"/>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="icon" href="data:,"/>
+</head>
+<body>
+<header id="topbar">
+  <div id="brand">TRAVERSE<span> · Marswalk Mission Planner</span></div>
+  <nav>
+    <button id="btn-globe" class="tab active">🌐 Globe</button>
+    <button id="btn-planner" class="tab">🗺️ Jezero Planner</button>
+  </nav>
+  <div id="status">Loading Mars…</div>
+</header>
+<main>
+  <section id="globe" class="view"></section>
+  <section id="planner" class="view hidden">
+    <div id="map"></div>
+    <aside id="panel">
+      <h1>Jezero Crater <small>18.4°N · 77.6°E</small></h1>
+      <p class="hint">Perseverance's landing site. Its <b>actual traverse</b> (orange, live from
+        mars.nasa.gov) is overlaid. Plan your own EVA route on top, then export it for the
+        rover physics sim.</p>
+      <div class="row">
+        <button id="b-plan" class="act">✏️ Plan route</button>
+        <button id="b-science" class="act" disabled>★ Science stop</button>
+      </div>
+      <div class="row">
+        <button id="b-undo" class="act" disabled>↩ Undo</button>
+        <button id="b-clear" class="act" disabled>🗑 Clear</button>
+      </div>
+      <div class="row">
+        <button id="b-elev" class="act" disabled>⛰ Sample elevation (3D globe)</button>
+      </div>
+      <div class="row">
+        <label>EVA speed
+          <select id="speed">
+            <option value="1">1 km/h — careful EVA</option>
+            <option value="1.5" selected>1.5 km/h — nominal</option>
+            <option value="2">2 km/h — brisk walk</option>
+          </select>
+        </label>
+      </div>
+      <div id="stats">
+        <div class="stat"><b id="s-dist">0.000</b><i>km planned</i></div>
+        <div class="stat"><b id="s-time">0</b><i>min EVA</i></div>
+        <div class="stat"><b id="s-stop">0</b><i>science stops</i></div>
+        <div class="stat"><b id="s-warn">0</b><i>slopes &gt;15°</i></div>
+        <div class="stat"><b id="s-haz">0</b><i>hazards &gt;25°</i></div>
+      </div>
+      <div id="profile"></div>
+      <div class="row">
+        <button id="b-export" class="act go" disabled>⬇ Export route.json → rover sim</button>
+      </div>
+      <p class="foot">Assumptions: Mars radius 3,389.5 km · traverse path MOLA elevations from
+        NASA M20 GIS · layers: USGS/NASA/ESA, OpenPlanetaryMap.</p>
+    </aside>
+  </section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Cesium.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

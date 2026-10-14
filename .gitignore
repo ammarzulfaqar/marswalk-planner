@@ -1,0 +1,10 @@
+# Blender artifacts & caches
+*.blend1
+__pycache__/
+*.pyc
+# downloaded route exports for testing
+route_*.json
+# node junk (server is zero-dep but keep tidy)
+node_modules/
+.DS_Store
+Thumbs.db
